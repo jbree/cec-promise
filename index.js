@@ -52,11 +52,23 @@ let request = function (dest, command, response) {
 };
 
 let send = function (command) {
-  client.send(command);
+  ready
+  .then(function () {
+    client.send(command);
+  })
+  .catch(function (err) {
+    reject(err);
+  });
 };
 
 let command = function (dest, command) {
-  client.sendCommand(dest, command);
+  ready
+  .then(function () {
+    client.sendCommand(dest, command);
+  })
+  .catch(function (err) {
+    reject(err);
+  });
 };
 
 module.exports = {
