@@ -51,8 +51,17 @@ let request = function (dest, command, response) {
   });
 };
 
+let send = function (command) {
+  client.send(command);
+};
+
+let command = function (dest, command) {
+  client.sendCommand(dest, command);
+};
 
 module.exports = {
+  command: command,
+  send: send,
   timeout: timeout,
   request: request,
   code: CEC
