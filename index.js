@@ -19,7 +19,7 @@ let ready = new Promise(function (resolve, reject) {
   client.start('cec-client', '-m', '-d', '8', '-b', 'r');
 });
 
-request = function (dest, command, response) {
+let request = function (dest, command, response) {
   return new Promise(function(resolve, reject) {
 
     ready
