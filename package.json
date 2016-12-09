@@ -1,0 +1,27 @@
+{
+  "name": "cec-promise",
+  "version": "0.0.1",
+  "description": "Send HDMI CEC commands, and use Promises to receive responses.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbree/cec-promise.git"
+  },
+  "keywords": [
+    "hdmi",
+    "cec",
+    "cec-client",
+    "nodejs",
+    "node"
+  ],
+  "author": "Joshua Breeden",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbree/cec-promise/issues"
+  },
+  "homepage": "https://github.com/jbree/cec-promise#readme",
+  "dependencies": {
+    "node-cec": "^0.1.2",
+    "promise": "^7.1.1"
+  }
+}
