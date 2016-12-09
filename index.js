@@ -35,7 +35,7 @@ let request = function (dest, command, response) {
       if (!(response in responsesPending)) {
         responsesPending[response] = 1;
         // console.log(`first request for ${response}`);
-        client.sendCommand(0xf5, CEC.Opcode[command]);
+        client.sendCommand(dest, CEC.Opcode[command]);
       } else {
         responsesPending[response]++;
         // console.log(`${responsesPending[response]} requests for ${response}`);
