@@ -29,7 +29,7 @@ let request = function (dest, command, response) {
       let errorTimer;
 
       let sendResponse = function(packet, status) {
-        clearTimeout(timer);
+        clearTimeout(errorTimer);
         responsesPending[response]--;
         resolve({packet: packet, status: status});
       };
