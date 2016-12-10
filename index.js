@@ -11,9 +11,11 @@ let ready = new Promise(function (resolve, reject) {
   let errorTimeout = setTimeout(function () {
     reject(new Error('cec-client never reported ready'));
   }, 5000);
-
   client.once('ready', function (client) {
-    resolve(client);
+    clearTimeout(errorTimeout);
+    setTimeout(function () {
+      resolve(client);
+    }, 3000);
   });
 
   client.start('cec-client', '-m', '-d', '8', '-b', 'r');
@@ -24,27 +26,33 @@ let request = function (dest, command, response) {
 
     ready
     .then(function () {
-      let timer;
-      client.once(response, function (packet, status) {
-        // console.log(`resolving response ${responsesPending[response]}`);
+      let errorTimer;
+
+      let sendResponse = function(packet, status) {
         clearTimeout(timer);
         responsesPending[response]--;
         resolve({packet: packet, status: status});
-      });
+      };
+
+      client.once(response, sendResponse);
 
       if (!(response in responsesPending)) {
-        responsesPending[response] = 1;
-        // console.log(`first request for ${response}`);
-        client.sendCommand(dest, CEC.Opcode[command]);
-      } else {
-        responsesPending[response]++;
-        // console.log(`${responsesPending[response]} requests for ${response}`);
+        responsesPending[response] = 0;
       }
 
-      timer = setTimeout(reject, timeout, new Error(`No ${response} received after ${timeout}ms`));
+      if(responsesPending[response] < 1) {
+        client.sendCommand(dest, CEC.Opcode[command]);
+      }
+
+      responsesPending[response]++;
+
+      errorTimer = setTimeout(function () {
+        responsesPending[response]--;
+        client.removeListener(response, sendResponse);
+        return reject(new Error(`No ${response} received after ${timeout}ms`));
+      }, timeout);
     })
     .catch(function (err) {
-      // console.log(err);
       reject(err);
     });
 
@@ -55,6 +63,7 @@ let send = function (command) {
   ready
   .then(function () {
     client.send(command);
+    resolve();
   })
   .catch(function (err) {
     reject(err);
@@ -65,6 +74,7 @@ let command = function (dest, command) {
   ready
   .then(function () {
     client.sendCommand(dest, command);
+    resolve();
   })
   .catch(function (err) {
     reject(err);
