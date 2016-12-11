@@ -7,6 +7,8 @@ let client = new NodeCec('node-cec-monitor');
 let responsesPending = [];
 let timeout = 1000;
 
+let busy = false;
+
 let ready = new Promise(function (resolve, reject) {
   let errorTimeout = setTimeout(function () {
     reject(new Error('cec-client never reported ready'));
@@ -41,7 +43,16 @@ let request = function (dest, command, response) {
       }
 
       if(responsesPending[response] < 1) {
-        client.sendCommand(dest, CEC.Opcode[command]);
+        let sendWhenAble = function() {
+          if (busy) {
+            setTimeout(sendWhenAble, 100);
+          } else {
+            busy = true;
+            client.sendCommand(dest, CEC.Opcode[command]);
+            setTimeout(function () { busy = false; }, 200);
+          }
+        };
+        sendWhenAble();
       }
 
       responsesPending[response]++;
