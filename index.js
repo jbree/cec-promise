@@ -6,7 +6,6 @@ const CEC = NodeCecModule.CEC;
 let client = new NodeCec('node-cec-monitor');
 let responsesPending = [];
 let timeout = 1000;
-
 let busy = false;
 
 let ready = new Promise(function (resolve, reject) {
@@ -92,10 +91,16 @@ let command = function (dest, command) {
   });
 };
 
+let on = client.on;
+
+let once = client.once;
+
 module.exports = {
   command: command,
+  on: on,
+  once: once,
+  request: request,
   send: send,
   timeout: timeout,
-  request: request,
   code: CEC
 };
