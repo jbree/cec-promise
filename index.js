@@ -2,6 +2,7 @@ var Promise = require('promise');
 const NodeCecModule = require('node-cec');
 const NodeCec = NodeCecModule.NodeCec;
 const CEC = NodeCecModule.CEC;
+const startupTimeout = 10000; // milliseconds
 
 let client = new NodeCec('node-cec-monitor');
 let responsesPending = [];
@@ -11,7 +12,7 @@ let busy = false;
 let ready = new Promise(function (resolve, reject) {
   let errorTimeout = setTimeout(function () {
     reject(new Error('cec-client never reported ready'));
-  }, 5000);
+  }, startupTimeout);
   client.once('ready', function (client) {
     clearTimeout(errorTimeout);
     setTimeout(function () {
