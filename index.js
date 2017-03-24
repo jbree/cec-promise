@@ -21,6 +21,8 @@ let ready = new Promise(function (resolve, reject) {
   });
 
   client.start('cec-client', '-m', '-d', '8', '-b', 'r');
+  
+  process.on('exit', client.stop);
 });
 
 let request = function (dest, command, response) {
