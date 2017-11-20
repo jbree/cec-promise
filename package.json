@@ -1,6 +1,6 @@
 {
   "name": "cec-promise",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Send HDMI CEC commands, and use Promises to receive responses.",
   "main": "index.js",
   "repository": {
