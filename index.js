@@ -96,9 +96,9 @@ let command = function (dest, command) {
   });
 };
 
-let on = client.on;
+let on = client.on.bind(client);
 
-let once = client.once;
+let once = client.once.bind(client);
 
 module.exports = {
   command: command,
