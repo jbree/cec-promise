@@ -7,7 +7,6 @@ const CEC = NodeCecModule.CEC;
 const startupTimeout = 30000; // milliseconds
 
 let client = new NodeCec('node-cec-monitor');
-let responsesPending = [];
 let timeout = 3000;
 let busy = false;
 
@@ -28,42 +27,38 @@ let ready = new Promise(function (resolve, reject) {
 });
 
 let request = function (dest, command, response) {
-  return new Promise(function(resolve, reject) {
+  const requestDestinationAddress = dest % 16;
 
+  return new Promise(function(resolve, reject) {
     ready
     .then(function () {
       let errorTimer;
 
-      let sendResponse = function(packet, status) {
-        clearTimeout(errorTimer);
-        responsesPending[response]--;
-        resolve({packet: packet, status: status});
+      let processResponse = function(packet, status) {
+        const responseSourceAddress = parseInt(packet.source, 16);
+
+        if (responseSourceAddress === requestDestinationAddress) {
+          client.removeListener(response, processResponse);
+          clearTimeout(errorTimer);
+          resolve({packet: packet, status: status});
+        }
       };
 
-      client.once(response, sendResponse);
+      client.on(response, processResponse);
 
-      if (!(response in responsesPending)) {
-        responsesPending[response] = 0;
-      }
-
-      if(responsesPending[response] < 1) {
-        let sendWhenAble = function() {
-          if (busy) {
-            setTimeout(sendWhenAble, 100);
-          } else {
-            busy = true;
-            client.sendCommand(dest, CEC.Opcode[command]);
-            setTimeout(function () { busy = false; }, 200);
-          }
-        };
-        sendWhenAble();
-      }
-
-      responsesPending[response]++;
+      const sendWhenAble = function() {
+        if (busy) {
+          setTimeout(sendWhenAble, 100);
+        } else {
+          busy = true;
+          client.sendCommand(dest, CEC.Opcode[command]);
+          setTimeout(function () { busy = false; }, 200);
+        }
+      };
+      sendWhenAble();
 
       errorTimer = setTimeout(function () {
-        responsesPending[response]--;
-        client.removeListener(response, sendResponse);
+        client.removeListener(response, processResponse);
         return reject(new Error(`No ${response} received after ${timeout}ms`));
       }, timeout);
     })
